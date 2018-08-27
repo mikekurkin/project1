@@ -1,0 +1,10 @@
+{% extends "layout.html" %}
+
+{% set active_page = "book" %}
+
+{% block title %}{{ book.title }}{% endblock %}
+
+{% block main %}
+<h1 class="display-4 pb-3">{{ book.title }}</h1>
+        {% include "card.html" %}
+{% endblock %}

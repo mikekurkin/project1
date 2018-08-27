@@ -1,0 +1,24 @@
+{% extends "layout.html" %}
+
+{% set active_page = "search" %}
+
+{% block title %}Search{% endblock %}
+
+{% block main %}
+<div class="mb-3">
+<form class="my-1" action="/search" method="get">
+    <div class="form-row">
+        <div class="col-9 col-md-10 mr-auto">
+          <input class="form-control" type="search" placeholder="Search" value="{{ q }}" aria-label="Search" name="q">
+        </div>
+        <div class="col-auto ml-auto">
+          <button class="btn btn-outline-success" type="submit">Search</button>
+        </div>
+    </div>
+</form>
+<p class="small text-muted ml-2">{{ books | length }} results</p>
+</div>
+    {% for book in books %}
+        {% include "card.html" %}
+    {% endfor %}
+{% endblock %}

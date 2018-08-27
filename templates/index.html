@@ -1,0 +1,12 @@
+{% extends "layout.html" %}
+
+{% set active_page = "index" %}
+
+{% block title %}Index{% endblock %}
+
+{% block main %}
+<h1 class="display-4 pb-3">Featured books</h1>
+    {% for book in books %}
+        {% include "card.html" %}
+    {% endfor %}
+{% endblock %}
