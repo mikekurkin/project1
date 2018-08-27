@@ -5,6 +5,23 @@
 {% block title %}{{ book.title }}{% endblock %}
 
 {% block main %}
-<h1 class="display-4 pb-3">{{ book.title }}</h1>
-        {% include "card.html" %}
+<p class="h2 display pb-3">{{ book.title }}</p>
+<div class="card mb-3 p-2">
+    <div class="card-body">
+        <div class="row">
+            <div class="col-6 col-md-4 col-lg-3">
+                <img class="card-img-top" src="{{ cover }}" alt="Book cover">
+            </div>
+            <div class="col-6 col-md-8 col-lg-9">
+                <div class="card-title mb-3">
+                    <h5 class="card-title mb-1">{{ book.title }} by {{ book.author }}</h5>
+                    <small class="text-muted inline">ISBN {{ book.isbn }}</small>
+                </div>
+                <div class="card-text">
+                    <p>Written in {{ book.year }}.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}

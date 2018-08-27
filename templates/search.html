@@ -8,17 +8,21 @@
 <div class="mb-3">
 <form class="my-1" action="/search" method="get">
     <div class="form-row">
-        <div class="col-9 col-md-10 mr-auto">
+        <div class="col-9 col-sm-10 col-lg-11 mr-auto">
           <input class="form-control" type="search" placeholder="Search" value="{{ q }}" aria-label="Search" name="q">
         </div>
-        <div class="col-auto ml-auto">
+        <div class="col-3 col-sm-2 col-lg-1 ml-auto">
           <button class="btn btn-outline-success" type="submit">Search</button>
         </div>
     </div>
 </form>
 <p class="small text-muted ml-2">{{ books | length }} results</p>
 </div>
+{% if not books | length == 0 %}
     {% for book in books %}
         {% include "card.html" %}
     {% endfor %}
+{% else %}
+    <p class="h2 display">No books found</p>
+{% endif %}
 {% endblock %}

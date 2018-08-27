@@ -18,33 +18,40 @@
 
     <title>Books: {% block title %}{% endblock %}</title>
   </head>
+
+{% set active_page = active_page|default('index') -%}
+
   <body>
     <nav class="navbar navbar-expand-sm navbar-dark bg-dark">
-      <a class="navbar-brand pl-0 mr-2 mb-0 h1"  href="/">Books</a>
+      <a class="navbar-brand ml-2 mr-4 mb-0 h1"  href="{% if active_page == 'index' %}#{% else %}/{% endif %}">Books</a>
       <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
 
-      {% set active_page = active_page|default('index') -%}
+
+
+
 
       <div class="collapse navbar-collapse" id="navbarSupportedContent">
-        <ul class="navbar-nav mr-2">
-          <li class="nav-item"><a class="nav-link{% if active_page =='index' %} active{% endif
-    %}" href="/">Featured</a></li>
-          <li class="nav-item"><a class="nav-link{% if active_page =='list' %} active{% endif
-    %}" href="list.html">List</a></li>
-        </ul>
-
-        {% if session.user_id and not active_page == 'search' %}
-        <form class="form-inline my-0 mr-auto" action="/search" method="get">
-          <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search" name="q">
-          <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+        {% if not active_page == 'search' %}
+        <div class="row ml-2 ml-sm-0 mt-2 my-sm-0">
+        <form class="form-row" action="/search" method="get">
+            <div class="col-10 col-sm-10 mr-auto">
+                <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search" name="q">
+            </div>
+            <div class="col-2 col-sm-2">
+                <button class="btn btn-outline-success my-0" type="submit">Search</button>
+            </div>
         </form>
+        </div>
         {% endif %}
+        
         
         <ul class="navbar-nav ml-auto">
             {% if session.user_id %}
-                <li class="nav-item"><a class="nav-link" href="/logout">Log Out</a></li>
+                <div class="row ml-2 mr-auto">
+                    <span class="navbar-text mr-0">{{ session.user_name }} </span><li class="nav-item"><a class="nav-link pl-1" href="/logout">(Log Out)</a></li>
+                </div>
             {% else %}
                 <li class="nav-item"><a class="nav-link{% if active_page =='register' %} active{% endif %}" href="/register">Register</a></li>
                 <li class="nav-item"><a class="nav-link{% if active_page =='login' %} active{% endif %}" href="/login">Log In</a></li>
