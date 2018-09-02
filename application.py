@@ -11,7 +11,6 @@ from werkzeug.security import check_password_hash, generate_password_hash
 app = Flask(__name__)
 
 
-
 # Check for environment variable
 if not os.getenv("DATABASE_URL"):
     raise RuntimeError("DATABASE_URL is not set")
