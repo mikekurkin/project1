@@ -1,7 +1,7 @@
 import os
 import requests
 
-from flask import Flask, session, redirect, request, render_template
+from flask import Flask, abort, session, jsonify, redirect, request, render_template
 from flask_session import Session
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
@@ -17,6 +17,8 @@ if not os.getenv("DATABASE_URL"):
 app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
+
+app.config["JSON_SORT_KEYS"] = False
 
 # Set up database
 engine = create_engine(os.getenv("DATABASE_URL"))
@@ -47,16 +49,47 @@ def index():
     return render_template("index.html", books=books)
 
 
+@app.route("/api/<book_isbn>")
+def api(book_isbn):
+    """Return number of reviews and an average score"""
+    # Get book
+    rows = db.execute("SELECT * FROM books WHERE isbn = :isbn",
+                      {"isbn": book_isbn})
+    if not rows.rowcount == 1:
+        abort(404)
+    book = rows.fetchone()
+
+    # Get reviews
+    rows = db.execute("SELECT * FROM reviews WHERE book_id = :book_id",
+                      {"book_id": book.id})
+    count = rows.rowcount
+    reviews = rows.fetchall()
+
+    # Calculate average
+    sum = 0
+    for review in reviews:
+        sum += review.score
+    average = sum / count
+
+    # Create dictionary
+    output = {"title": book.title,
+              "author": book.author,
+              "year": book.year,
+              "isbn": book.isbn,
+              "review_count": count,
+              "average_score": average}
+
+    print(output)
+    return jsonify(output)
+
+
 @app.route("/book/<int:book_id>", methods=['POST', 'GET'])
 def book(book_id):
     """Render book page or post a review"""
     # If user reaches via GET, render info page for book with given id
     if request.method == 'GET':
-        try:
-            rows = db.execute("SELECT * FROM books WHERE id = :id",
-                              {"id": book_id})
-        except Exception:
-            return error("Database error", 503)
+        rows = db.execute("SELECT * FROM books WHERE id = :id",
+                          {"id": book_id})
 
         if rows.rowcount == 0:
             return error("No suck book with this id", 404)
