@@ -66,12 +66,16 @@ def api(book_isbn):
                       {"book_id": book.id})
     count = rows.rowcount
     reviews = rows.fetchall()
+    print(rows)
 
     # Calculate average
-    sum = 0
-    for review in reviews:
-        sum += review.score
-    average = sum / count
+    if not count == 0:
+        sum = 0
+        for review in reviews:
+            sum += review.score
+        average = sum / count
+    else:
+        average = 0.0
 
     # Create dictionary
     output = {"title": book.title,
@@ -81,7 +85,6 @@ def api(book_isbn):
               "review_count": count,
               "average_score": average}
 
-    print(output)
     return jsonify(output)
 
 
