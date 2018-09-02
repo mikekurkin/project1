@@ -49,6 +49,7 @@ def index():
 
 @app.route("/book/<int:book_id>", methods=['POST', 'GET'])
 def book(book_id):
+    """Render book page or post a review"""
     # If user reaches via GET, render info page for book with given id
     if request.method == 'GET':
         try:
@@ -100,13 +101,13 @@ def book(book_id):
 
         content = request.form.get('content')
         if not content:
-            return error("No review")
+            return error("Please write a review")
 
         # Check if score is integer
         try:
             score = int(request.form.get('score'))
         except Exception:
-            score = 0
+            return error("Please rate a book")
 
         # Write to database
         try:
@@ -232,7 +233,9 @@ def register():
 
 @app.route("/search")
 def search():
+    """Searches for specified request"""
     q = request.args.get('q')
+
     try:
         books = db.execute(
             "SELECT * FROM books WHERE LOWER(isbn) LIKE LOWER(:s) \
@@ -240,4 +243,5 @@ def search():
             {"s": q+'%', "q": '%'+q+'%'}).fetchall()
     except Exception:
         return error("Database error", 503)
+
     return render_template("search.html", books=books, q=q)
