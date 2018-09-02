@@ -1,5 +1,7 @@
+gunicorn
 SQLAlchemy==1.2.11
 Flask==1.0.2
+Flask-Heroku
 Flask-Session
 psycopg2
 requests==2.19.1
