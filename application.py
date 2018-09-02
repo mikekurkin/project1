@@ -47,34 +47,85 @@ def index():
     return render_template("index.html", books=books)
 
 
-@app.route("/book/<int:book_id>")
+@app.route("/book/<int:book_id>", methods=['POST', 'GET'])
 def book(book_id):
-    """Renders info page for book with given id"""
-    try:
-        rows = db.execute("SELECT * FROM books WHERE id = :id",
-                          {"id": book_id})
-    except Exception:
-        return error("Database error", 503)
+    # If user reaches via GET, render info page for book with given id
+    if request.method == 'GET':
+        try:
+            rows = db.execute("SELECT * FROM books WHERE id = :id",
+                              {"id": book_id})
+        except Exception:
+            return error("Database error", 503)
 
-    if rows.rowcount == 0:
-        return error("No suck book with this id", 404)
+        if rows.rowcount == 0:
+            return error("No suck book with this id", 404)
 
-    book = rows.fetchone()
+        book = rows.fetchone()
 
-    cover = f"https://covers.openlibrary.org/b/isbn/{book.isbn}-L.jpg"
-    gr_res = get_gr_res(book.isbn)
+        # Check if user already reviewed this book
+        rows = db.execute("SELECT * FROM reviews WHERE user_id = :user_id AND\
+                           book_id = :book_id",
+                          {"user_id": session["user_id"],
+                           "book_id": book_id})
+        if not rows.rowcount == 0:
+            print(rows.fetchall())
+            reviewed = True
+        else:
+            reviewed = False
 
-    print(gr_res.json())
-    print(cover)
-    return render_template("book.html",
-                           book=book,
-                           cover=cover,
-                           gr_res=gr_res.json())
+        # Get own reviews
+        reviews = db.execute("SELECT reviews.id, reviews.timestamp,\
+                              reviews.content, reviews.score, users.name\
+                              FROM reviews INNER JOIN users ON\
+                              (reviews.user_id = users.id) WHERE\
+                              book_id = :book_id",
+                             {"book_id": book_id}).fetchall()
+
+        # Get cover from OpenLibrary
+        cover = f"https://covers.openlibrary.org/b/isbn/{book.isbn}-L.jpg"
+        # Get reviews info from Goodreads
+        gr_res = get_gr_res(book.isbn).json()["books"][0]
+
+        return render_template("book.html",
+                               book=book,
+                               cover=cover,
+                               reviewed=reviewed,
+                               reviews=reviews,
+                               gr_res=gr_res)
+
+    # If user reaches via POST, then post review
+    else:
+        if not session["user_id"]:
+            return error("Unauthorized", 403)
+
+        content = request.form.get('content')
+        if not content:
+            return error("No review")
+
+        # Check if score is integer
+        try:
+            score = int(request.form.get('score'))
+        except Exception:
+            score = 0
+
+        # Write to database
+        try:
+            db.execute("INSERT INTO reviews (book_id, user_id, content, score)\
+                        VALUES (:book_id, :user_id, :content, :score)",
+                       {"book_id": book_id,
+                        "user_id": session["user_id"],
+                        "content": content,
+                        "score": score})
+        except Exception:
+            return error("Database error", 503)
+        db.commit()
+
+        return redirect(f"/book/{book_id}")
 
 
 @app.route("/login", methods=['POST', 'GET'])
 def login():
-    """Log user in."""
+    """Log user in"""
 
     # Forget any user_id
     session.clear()
@@ -129,7 +180,7 @@ def logout():
 
 @app.route("/register", methods=['POST', 'GET'])
 def register():
-    """Register user."""
+    """Register user"""
 
     # Forget any user_id
     session.clear()

@@ -5,23 +5,77 @@
 {% block title %}{{ book.title }}{% endblock %}
 
 {% block main %}
-<p class="h2 display pb-3">{{ book.title }}</p>
+<p class="h2 display mb-4">{{ book.title }}</p>
 <div class="card mb-3 p-2">
-    <div class="card-body">
-        <div class="row">
-            <div class="col-6 col-md-4 col-lg-3">
-                <img class="card-img-top" src="{{ cover }}" alt="Book cover">
-            </div>
-            <div class="col-6 col-md-8 col-lg-9">
-                <div class="card-title mb-3">
-                    <h5 class="card-title mb-1">{{ book.title }} by {{ book.author }}</h5>
-                    <small class="text-muted inline">ISBN {{ book.isbn }}</small>
-                </div>
-                <div class="card-text">
-                    <p>Written in {{ book.year }}.</p>
-                </div>
-            </div>
+  <div class="card-body">
+    <div class="row">
+      <div class="col-6 col-md-4 col-lg-3">
+        <img class="card-img-top" src="{{ cover }}" alt="Book cover">
+      </div>
+      <div class="col-6 col-md-8 col-lg-9">
+        <div class="card-title mb-3">
+          <h5 class="card-title mb-1">{{ book.title }} by {{ book.author }}</h5>
+          <small class="text-muted inline">ISBN {{ book.isbn }}</small>
+          <div class="mt-2">
+            <span>{{ gr_res["average_rating"] }} / 5 ★ </span>
+            <span class="text-muted">(<a class="text-muted" href="https://www.goodreads.com/book/show/{{ gr_res["id"]}}">{{ gr_res["work_ratings_count"] }} ratings</a>)</span>
+          </div>
         </div>
+        <div class="card-text">
+          <p>Written in {{ book.year }}.</p>
+        </div>
+      </div>
     </div>
+  </div>
 </div>
+
+{% if not reviews | length == 0 %}
+<p class="h3 display mt-4 mb-3">Reviews:</p>
+{% endif %}
+{% for review in reviews %}
+  <div class="card mb-3 p-2">
+    <div class="card-body">
+      <div class="card-title mb-2">
+        <span class="h4 display">{{ review.name }}:</span>
+        {% if not review.score == 0 %}
+          <span class="text-muted inline ml-2">{{ review.score }} / 5 ★</span>
+        {% endif %}
+      </div>
+      <p class="card-text">{{ review.content }}</p>
+    </div>
+  </div>
+{% endfor %}
+
+{% if session.user_id and not reviewed %}
+<p class="h3 display mt-4 mb-3">Write a review:</p>
+<div class="card mb-3 p-2">
+  <div class="card-body">
+    <form action="/book/{{ book.id }}" method="post">
+      <div class="form-group">
+        <label for="score-selector">Score: </label><br/>
+        <div class="btn-group btn-group-toggle" id="score-selector" data-toggle="buttons">
+          <label class="btn btn-outline-secondary">
+            <input type="radio" name="score" value="1" autocomplete="off"> 1
+          </label>
+          <label class="btn btn-outline-secondary">
+            <input type="radio" name="score" value="2" autocomplete="off"> 2
+          </label>
+          <label class="btn btn-outline-secondary">
+            <input type="radio" name="score" value="3" autocomplete="off"> 3
+          </label>
+          <label class="btn btn-outline-secondary">
+            <input type="radio" name="score" value="4" autocomplete="off"> 4
+          </label>
+          <label class="btn btn-outline-secondary">
+            <input type="radio" name="score" value="5" autocomplete="off"> 5
+          </label>
+        </div>
+      </div>
+      <label for="review-textarea">Review: </label>
+      <textarea class="form-control mb-4" name="content" id="review-textarea"></textarea>
+      <button class="btn btn-secondary" type="submit">Submit</button>
+    </form>
+  </div>
+</div>
+{% endif %}
 {% endblock %}
