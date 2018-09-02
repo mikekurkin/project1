@@ -63,15 +63,15 @@ def book(book_id):
         book = rows.fetchone()
 
         # Check if user already reviewed this book
-        rows = db.execute("SELECT * FROM reviews WHERE user_id = :user_id AND\
-                           book_id = :book_id",
-                          {"user_id": session["user_id"],
-                           "book_id": book_id})
-        if not rows.rowcount == 0:
-            print(rows.fetchall())
-            reviewed = True
-        else:
-            reviewed = False
+        reviewed = True
+        if session["user_id"]:
+            rows = db.execute("SELECT * FROM reviews WHERE user_id = :user_id\
+                               AND book_id = :book_id",
+                              {"user_id": session["user_id"],
+                               "book_id": book_id})
+            if rows.rowcount == 0:
+                print(rows.fetchall())
+                reviewed = False
 
         # Get own reviews
         reviews = db.execute("SELECT reviews.id, reviews.timestamp,\
