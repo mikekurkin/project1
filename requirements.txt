@@ -1,7 +1,6 @@
-Flask
+SQLAlchemy==1.2.11
+Flask==1.0.2
 Flask-Session
 psycopg2
-SQLAlchemy
-requests
-werkzeug
-
+requests==2.19.1
+Werkzeug==0.14.1
