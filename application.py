@@ -100,7 +100,7 @@ def book(book_id):
 
         # Check if user already reviewed this book
         reviewed = True
-        if session["user_id"]:
+        if session.get("user_id"):
             rows = db.execute("SELECT * FROM reviews WHERE user_id = :user_id\
                                AND book_id = :book_id",
                               {"user_id": session["user_id"],
@@ -131,7 +131,7 @@ def book(book_id):
 
     # If user reaches via POST, then post review
     else:
-        if not session["user_id"]:
+        if not session.get("user_id"):
             return error("Unauthorized", 403)
 
         content = request.form.get('content')
